@@ -1,22 +1,6 @@
 const User = require("../models/userModel");
-
-// Crear un nuevo usuario
-const createUser = async (req, res) => {
-    try {
-        const { name, email, password, referenceEmail, wallet } = req.body;
-
-        if (!name || !email || !password) {
-            return res.status(400).json({ message: "Faltan datos obligatorios." });
-        }
-
-        const user = new User({ name, email, password, referenceEmail, wallet });
-        await user.save();
-
-        res.status(201).json({ message: "Usuario creado con éxito.", user });
-    } catch (error) {
-        res.status(500).json({ message: "Error al crear usuario.", error: error.message });
-    }
-};
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 // Obtener todos los usuarios
 const getAllUsers = async (req, res) => {
@@ -28,4 +12,76 @@ const getAllUsers = async (req, res) => {
     }
 };
 
-module.exports = { createUser, getAllUsers };
+// Login usuario con JWT
+const loginUser = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        if (!email || !password) {
+            return res.status(400).json({ message: "Por favor, ingresa todos los campos." });
+        }
+
+        // Buscar al usuario por email
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(401).json({ message: "Credenciales inválidas." });
+        }
+
+        // Verificar la contraseña
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: "Credenciales inválidas." });
+        }
+
+        // Generar el token JWT
+        const token = jwt.sign(
+            { id: user._id, email: user.email, name: user.name },
+            process.env.JWT_SECRET, // Clave secreta para firmar el token
+            { expiresIn: "1h" } // Tiempo de expiración del token
+        );
+
+        res.status(200).json({
+            message: "Inicio de sesión exitoso.",
+            token,
+            user: { id: user._id, name: user.name, email: user.email },
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Error en el servidor.", error: error.message });
+    }
+};
+
+// Crear un nuevo usuario
+const createUser = async (req, res) => {
+    try {
+        const { name, email, password, referenceEmail, wallet } = req.body;
+
+        if (!name || !email || !password) {
+            return res.status(400).json({ message: "Faltan datos obligatorios." });
+        }
+
+        // Verificar si el email ya existe
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ message: "El email ya está registrado." });
+        }
+
+        // Encriptar la contraseña antes de guardar
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const user = new User({
+            name,
+            email,
+            password: hashedPassword, // Guardar la contraseña encriptada
+            referenceEmail,
+            wallet,
+        });
+
+        await user.save();
+
+        res.status(201).json({ message: "Usuario creado con éxito.", user });
+    } catch (error) {
+        res.status(500).json({ message: "Error al crear usuario.", error: error.message });
+    }
+};
+
+module.exports = { createUser, getAllUsers, loginUser };
