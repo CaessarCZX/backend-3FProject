@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const userRoutes = require("./routes/userRoutes");
+const testRoutes = require("./routes/testRoutes");
 
 const app = express();
 
@@ -18,5 +19,7 @@ app.use(express.json());
 
 // Rutas
 app.use("/f3api/users", userRoutes);
+
+app.use("/", testRoutes);
 
 module.exports = app;
