@@ -4,13 +4,13 @@ const jwt = require("jsonwebtoken");
 
 // Obtener todos los usuarios
 const getAllUsers = async (req, res) => {
-    console.log("Iniciando getAllUsers...");
     try {
+        console.log("Iniciando getAllUsers...");
         const users = await User.find();
-        console.log("Usuarios obtenidos:", users.length);
+        console.log(`Usuarios encontrados: ${users.length}`);
         res.status(200).json(users);
     } catch (error) {
-        console.error("Error en getAllUsers:", error);
+        console.error("Error en getAllUsers:", error.message);
         res.status(500).json({ message: "Error al obtener usuarios.", error: error.message });
     }
 };
