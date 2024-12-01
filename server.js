@@ -5,11 +5,11 @@ const cors = require("cors"); // Importar cors
 
 // Configuración de CORS
 const corsOptions = {
-    origin: "http://localhost:3000", // Permitir solo el origen localhost:3000
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Métodos permitidos
-    allowedHeaders: ["Content-Type", "Authorization"], // Cabeceras permitidas
-    credentials: true, // Si se requieren cookies o cabeceras de autorización
-};
+    origin: ["http://localhost:3000", "https://backend-3-f-project.vercel.app/?vercelToolbarCode=7e9LkY30B75zcfs/"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  };
 
 // Conexión a la base de datos
 connectDB();
