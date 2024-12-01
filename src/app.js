@@ -23,4 +23,8 @@ app.use("/f3api/users", userRoutes);
 
 app.use("/", testRoutes);
 
+app.use((req, res, next) => {
+  res.status(404).json({ message: "Ruta no encontrada" });
+});
+
 module.exports = app;
