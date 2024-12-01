@@ -7,11 +7,12 @@ const app = express();
 
 // Middleware de CORS
 const corsOptions = {
-  origin: "http://localhost:3000",
+  origin: ["http://localhost:3000", "https://backend-3-f-project.vercel.app/?vercelToolbarCode=7e9LkY30B75zcfs/"],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 };
+
 app.use(cors(corsOptions));
 
 // Middleware para manejar JSON
