@@ -27,4 +27,6 @@ app.use((req, res, next) => {
   res.status(404).json({ message: "Ruta no encontrada" });
 });
 
+app.get("/favicon.ico", (req, res) => res.status(204).end());
+
 module.exports = app;
