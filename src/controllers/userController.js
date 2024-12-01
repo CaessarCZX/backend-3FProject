@@ -4,15 +4,34 @@ const jwt = require("jsonwebtoken");
 
 // Obtener todos los usuarios
 const getAllUsers = async (req, res) => {
-    try {
-        console.log("Iniciando getAllUsers...");
-        const users = await User.find();
-        console.log(`Usuarios encontrados: ${users.length}`);
-        res.status(200).json(users);
-    } catch (error) {
-        console.error("Error en getAllUsers:", error.message);
-        res.status(500).json({ message: "Error al obtener usuarios.", error: error.message });
-    }
+  try {
+      console.log("Iniciando getAllUsers...");
+
+      // Parámetros de paginación
+      const page = parseInt(req.query.page) || 1; // Página actual (por defecto 1)
+      const limit = parseInt(req.query.limit) || 10; // Usuarios por página (por defecto 10)
+      const skip = (page - 1) * limit; // Usuarios a saltar
+
+      // Consultar usuarios con paginación
+      const users = await User.find()
+          .skip(skip)
+          .limit(limit)
+          .select("name email"); // Selecciona solo los campos necesarios (opcional)
+
+      // Obtener el total de usuarios para la respuesta
+      const totalUsers = await User.countDocuments();
+
+      console.log(`Usuarios encontrados: ${users.length}`);
+      res.status(200).json({
+          total: totalUsers,
+          page,
+          pages: Math.ceil(totalUsers / limit),
+          users,
+      });
+  } catch (error) {
+      console.error("Error en getAllUsers:", error.message);
+      res.status(500).json({ message: "Error al obtener usuarios.", error: error.message });
+  }
 };
   
   // Login usuario con JWT
