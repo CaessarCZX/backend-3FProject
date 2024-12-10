@@ -97,6 +97,21 @@ const getAllUsers = async (req, res) => {
 
           // Encriptar la contraseña antes de guardar
           const hashedPassword = await bcrypt.hash(password, 10);
+          
+          ////Buscar al recomendador y actualizar lista de referidos
+          let referenceWallet = null;
+
+          if(referenceEmail){
+            const referrer = await user.findOne({email: referenceEmail});
+            if(!referrer){
+              return res.status(400).json({message:"El correo del recomendador no es válido"})
+            }
+            referenceWallet = referrer.wallet;
+
+            ////Actualizar el listado de referidos del recomendador
+            referrer.referrals.push(wallet);
+            await referrer.save();
+          }
 
           const user = new User({
               name,
@@ -104,6 +119,7 @@ const getAllUsers = async (req, res) => {
               password: hashedPassword, // Guardar la contraseña encriptada
               referenceEmail,
               wallet,
+              referenceWallet,////
           });
 
           await user.save();
